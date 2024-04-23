@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Writers;
+using VaxScheduler.Core.Services;
 using VaxScheduler.Repository.Data;
+using VaxScheduler.Services;
 
 namespace VaxScheduler.API
 {
@@ -20,6 +22,7 @@ namespace VaxScheduler.API
 			{
 				Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 			});
+			builder.Services.AddScoped<ITokenService, TokenService>();	 
 
 			var app = builder.Build();
 

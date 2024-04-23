@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VaxScheduler.Repository\VaxScheduler.Repository.csproj" />
+    <ProjectReference Include="..\VaxScheduler.Services\VaxScheduler.Services.csproj" />
   </ItemGroup>
 
 </Project>
