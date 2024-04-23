@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VaxScheduler.Core\VaxScheduler.Core.csproj" />
+  </ItemGroup>
+
 </Project>
