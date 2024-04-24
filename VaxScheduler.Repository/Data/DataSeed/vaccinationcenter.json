@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "ElDokki",
+    "Email": "dokki@center.com",
+    "Password": "Dokki@123",
+    "Role": "Center",
+    "Location": "123 Street City Countery",
+    "AdminId": 1,
+    "VaccineVaccinationCenter": []
+  }
+]

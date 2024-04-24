@@ -7,7 +7,7 @@ using VaxScheduler.Repository.Data;
 
 #nullable disable
 
-namespace VaxScheduler.Repository.Migrations
+namespace VaxScheduler.API.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
     partial class VaxDbContextModelSnapshot : ModelSnapshot
@@ -57,9 +57,6 @@ namespace VaxScheduler.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("AdminId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Age")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")

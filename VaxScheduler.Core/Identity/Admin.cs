@@ -5,10 +5,12 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using VaxScheduler.Core.Entities;
+using VaxScheduler.Core.Interfaces;
 
 namespace VaxScheduler.Core.Identity
 {
-	public class Admin
+	public class Admin : IUser
 	{
         public int Id { get; set; }
         public string Name { get; set; }

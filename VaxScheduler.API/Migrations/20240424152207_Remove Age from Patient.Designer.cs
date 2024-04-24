@@ -2,17 +2,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VaxScheduler.Repository.Data;
 
 #nullable disable
 
-namespace VaxScheduler.Repository.Migrations
+namespace VaxScheduler.API.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
-    partial class VaxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240424152207_Remove Age from Patient")]
+    partial class RemoveAgefromPatient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,9 +59,6 @@ namespace VaxScheduler.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("AdminId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Age")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")

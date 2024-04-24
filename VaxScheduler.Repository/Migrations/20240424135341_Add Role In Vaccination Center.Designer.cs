@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VaxScheduler.Repository.Data;
 
@@ -10,9 +11,10 @@ using VaxScheduler.Repository.Data;
 namespace VaxScheduler.Repository.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
-    partial class VaxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240424135341_Add Role In Vaccination Center")]
+    partial class AddRoleInVaccinationCenter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,10 +135,6 @@ namespace VaxScheduler.Repository.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

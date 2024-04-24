@@ -5,19 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VaxScheduler.Core.Identity;
+using VaxScheduler.Core.Interfaces;
 
 namespace VaxScheduler.Core.Entities
 {
-    public class Patient : BaseEntity
+    public class Patient : BaseEntity , IUser
     {
        
         public string Name { get; set; }
+        public string Ssn { get; set; }
+		public string Role { get; set; }
 
-        public int Age { get; set; }
-
-        public int Ssn { get; set; }
-
-        [EmailAddress]
+		[EmailAddress]
         public string Email { get; set; }
 
 		[RegularExpression("(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"
@@ -31,14 +30,8 @@ namespace VaxScheduler.Core.Entities
         public Admin Admin { get; set; }
         public int AdminId { get; set; }
 
-
-
-
         public int VaccinationCenterId { get; set; }
         public VaccinationCenter VaccinationCenter { get; set; }
-
-
-
 
         public ICollection<PatientVaccine> patientVaccines { get; set; }
 

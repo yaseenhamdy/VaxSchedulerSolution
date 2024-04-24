@@ -14,8 +14,4 @@
     <ProjectReference Include="..\VaxScheduler.Core\VaxScheduler.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\DataSeed\" />
-  </ItemGroup>
-
 </Project>

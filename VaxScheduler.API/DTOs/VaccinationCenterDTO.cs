@@ -1,19 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace VaxScheduler.API.DTOs
 {
-	public class RegisterDTO
+	public class VaccinationCenterDTO
 	{
         [Required]
-        public string Name { get; set; }
-        
-		[Required]
-		public int age { get; set; }
+		public string Name { get; set; }
 
 		[Required]
-
-		public string Ssn { get; set; }
+		[EmailAddress]
+		public string Email { get; set; }
 
 		[Required]
 		[RegularExpression("(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"
@@ -22,15 +18,7 @@ namespace VaxScheduler.API.DTOs
 		public string Password { get; set; }
 
 		[Required]
-		[EmailAddress]
-		public string Email { get; set; }
+		public string Location { get; set; }
 
-		[Required]
-		[Phone]
-		public string Phone { get; set; }
-
-		[Required]
-		public int VaccinationCenterId { get; set; }
-
-	}
+    }
 }

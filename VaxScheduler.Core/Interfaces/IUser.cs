@@ -5,10 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VaxScheduler.Core.Entities
+namespace VaxScheduler.Core.Interfaces
 {
-    public class BaseEntity
-    {
-        public  int Id   { get; set; }
-    }
+	public interface IUser
+	{
+		string Name { get; }
+		string Email { get; }
+		string Role { get; }
+	}
 }

@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "Yaseen",
+    "Email": "yaseen@gmail.com",
+    "Password": "Yaseen@123",
+    "Role": "Patient",
+    "Ssn": "20211049",
+    "Phone": "01028129766",
+    "AdminId": 1,
+    "VaccinationCenterId": 3
+  }
+]
