@@ -39,7 +39,7 @@ namespace VaxScheduler.API.Controllers
 				{
 					return Ok(new UserDTO()
 					{
-						Fname = Admin.Name,
+						Name = Admin.Name,
 						Token = await _tokenService.CreateAdminTokenAsync(Admin),
 						Email = Admin.Email,
 						Role = Admin.Role,

@@ -5,14 +5,9 @@ namespace VaxScheduler.API.DTOs
 	public class RegisterDTO
 	{
         [Required]
-        public string Fname { get; set; }
+        public string Name { get; set; }
         
 		[Required]
-
-		public string Lname { get; set; }
-
-		[Required]
-
 		public int age { get; set; }
 
 		[Required]
