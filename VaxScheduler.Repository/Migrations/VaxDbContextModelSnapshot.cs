@@ -45,7 +45,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccinationCenterId");
 
-                    b.ToTable("Certificates");
+                    b.ToTable("Certificates", (string)null);
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.Patient", b =>
@@ -92,7 +92,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccinationCenterId");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.PatientVaccine", b =>
@@ -107,7 +107,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccineId");
 
-                    b.ToTable("patientVaccines");
+                    b.ToTable("patientVaccines", (string)null);
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.VaccinationCenter", b =>
@@ -145,7 +145,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("VaccinationCenters");
+                    b.ToTable("VaccinationCenters", (string)null);
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.Vaccine", b =>
@@ -174,7 +174,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("Vaccines");
+                    b.ToTable("Vaccines", (string)null);
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.VaccineVaccinationCenter", b =>
@@ -189,7 +189,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccineId");
 
-                    b.ToTable("vaccineVaccinationCenters");
+                    b.ToTable("vaccineVaccinationCenters", (string)null);
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Identity.Admin", b =>
@@ -218,7 +218,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Admins");
+                    b.ToTable("Admins", (string)null);
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.Certificate", b =>

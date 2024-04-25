@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Writers;
+using VaxScheduler.Core.Repositories;
 using VaxScheduler.Core.Services;
+using VaxScheduler.Repository;
 using VaxScheduler.Repository.Data;
 using VaxScheduler.Services;
 
@@ -25,6 +27,7 @@ namespace VaxScheduler.API
 
 					);
 			});
+			builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 			builder.Services.AddScoped<ITokenService, TokenService>();
 
 			var app = builder.Build();
