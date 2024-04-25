@@ -43,6 +43,7 @@ namespace VaxScheduler.API.Controllers
 					{
 						Name = model.Name,
 						Email = model.Email,
+						Role = "Center",
 						Token = await _tokenService.CreateAdminTokenAsync(center),
 						Status = new StatuseOfResonse()
 						{
