@@ -22,8 +22,8 @@ namespace VaxScheduler.API
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddDbContext<VaxDbContext>(Options =>
 			{
-				Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-					 b => b.MigrationsAssembly("VaxScheduler.API")
+				Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
+					//b => b.MigrationsAssembly("VaxScheduler.API")
 
 					);
 			});
