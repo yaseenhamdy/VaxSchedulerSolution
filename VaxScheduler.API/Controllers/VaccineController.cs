@@ -15,11 +15,13 @@ namespace VaxScheduler.API.Controllers
 	{
 		private readonly IGenericRepository<Vaccine> _vaccineRepo;
 		private readonly VaxDbContext _dbContext;
+		private readonly IUnitOfWork _unitOfWork;
 
-		public VaccineController(IGenericRepository<Vaccine> vaccineRepo, VaxDbContext dbContext)
+		public VaccineController(IGenericRepository<Vaccine> vaccineRepo, VaxDbContext dbContext, IUnitOfWork unitOfWork)
 		{
 			_vaccineRepo = vaccineRepo;
 			_dbContext = dbContext;
+			_unitOfWork = unitOfWork;
 		}
 
 		[HttpGet]
@@ -27,20 +29,13 @@ namespace VaxScheduler.API.Controllers
 		{
 			var Vaccines = await _vaccineRepo.GetAllAsync();
 
-			var vaccineDTOs = Vaccines.Select(v => new VaccineDTO
-			{
-				Id = v.Id,
-				Name = v.Name,
-				Precautions = v.Precautions,
-				DurationBetweenDoses = v.DurationBetweenDoses,
-				Status = new StatuseOfResonse()
+			if(Vaccines?.Count() > 0) 
+				return Ok(Vaccines);
+			else
+				return BadRequest(new StatuseOfResonse
 				{
-					Message = true,
-					Value = "Success"
-
-				}
-			}).ToList();
-			return Ok(vaccineDTOs);
+					Message = false,
+				});
 
 		}
 
@@ -52,7 +47,7 @@ namespace VaxScheduler.API.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var VaccineNameFlag =await _dbContext.Vaccines.Where(V => V.Name == model.Name).FirstOrDefaultAsync();
+				var VaccineNameFlag = await _dbContext.Vaccines.Where(V => V.Name == model.Name).FirstOrDefaultAsync();
 				if (VaccineNameFlag == null)
 				{
 					var vaccine = new Vaccine()
@@ -62,12 +57,13 @@ namespace VaxScheduler.API.Controllers
 						Precautions = model.Precautions,
 						AdminId = 1
 					};
-					await _dbContext.Vaccines.AddAsync(vaccine);
-					await _dbContext.SaveChangesAsync();
-
-					return Ok(new AddVaccineResponse
+					await _vaccineRepo.AddAsync(vaccine);
+					int Result = await _unitOfWork.Complete();
+					if (Result > 0)
+					{
+						return Ok(new AddVaccineResponse
 						{
-							Name= model.Name,
+							Name = model.Name,
 							Status = new StatuseOfResonse()
 							{
 								Message = true,
@@ -75,6 +71,15 @@ namespace VaxScheduler.API.Controllers
 
 							}
 						});
+					}
+					else
+					{
+						return BadRequest(new StatuseOfResonse
+						{
+							Message = false,
+						});
+					}
+					
 
 				}
 				else
@@ -91,8 +96,61 @@ namespace VaxScheduler.API.Controllers
 			}
 			else
 			{
-				return BadRequest();	
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+				});
 			}
+
+		}
+
+
+		[HttpDelete]
+		public async Task<ActionResult<StatuseOfResonse>> DeleteVaccine(DeleteCenterDTO model)
+		{
+			if (ModelState.IsValid)
+			{
+				var vaccine = await _vaccineRepo.GetByIdAsync(model.Id);
+				if (vaccine == null)
+					return NotFound(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "Not Found This Vaccine"
+					});
+				else
+				{
+					await _vaccineRepo.DeleteAsync(vaccine);
+					int Result = await _unitOfWork.Complete();
+					if (Result > 0)
+					{
+						return Ok(new StatuseOfResonse()
+						{
+							Message = true,
+							Value = "Deleted Successfully"
+
+						});
+					}
+					else
+					{
+						return Ok(new StatuseOfResonse()
+						{
+							Message = false,
+							Value = "Error"
+
+						});
+					}
+				}
+			}
+			else
+			{
+				return Ok(new StatuseOfResonse()
+				{
+					Message = false,
+					Value = "Error"
+
+				});
+			}
+
 
 		}
 	}

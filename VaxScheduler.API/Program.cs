@@ -28,6 +28,13 @@ namespace VaxScheduler.API
 					);
 			});
 			builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+			builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+
+			//builder.Services.AddControllers().AddJsonOptions(options =>
+			//{
+			//	options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+			//});
+
 			builder.Services.AddScoped<ITokenService, TokenService>();
 
 			var app = builder.Build();

@@ -16,24 +16,30 @@ namespace VaxScheduler.Repository
 		private readonly VaxDbContext _dbContext;
 
 		public GenericRepository(VaxDbContext dbContext)
-		{
-			_dbContext = dbContext;
-		}
+		 => _dbContext = dbContext;
 
-		public async Task<int> Add(T entity)
-		{
-
-			await _dbContext.Set<T>().AddAsync(entity);
-			return await _dbContext.SaveChangesAsync();
+		public async Task AddAsync(T entity)
+			=> await _dbContext.Set<T>().AddAsync(entity);
 
 
-		}
+		public async Task DeleteAsync<T>(T entity)
+			=> _dbContext.Remove(entity);
+
+
 
 		public async Task<IEnumerable<T>> GetAllAsync()
 		{
 			if (typeof(T) == typeof(Vaccine))
 			{
 				return (IEnumerable<T>)await _dbContext.Vaccines.ToListAsync();
+
+			}
+			else if (typeof(T) == typeof(VaccinationCenter))
+			{
+				return (IEnumerable<T>)await _dbContext.VaccinationCenters
+				                                     .Include(c => c.VaccineVaccinationCenter)
+				                                    	.ThenInclude(vvc => vvc.Vaccine)
+			                                        	.ToListAsync();
 
 			}
 			else
@@ -46,7 +52,18 @@ namespace VaxScheduler.Repository
 
 		public async Task<T> GetByIdAsync(int id)
 		{
+			if (typeof(T) == typeof(VaccinationCenter))
+			{
+				return (T)(object)await _dbContext.VaccinationCenters.FindAsync(id);
+
+			}
+			else if (typeof(T) == typeof(Vaccine))
+			{
+				return (T)(object)await _dbContext.Vaccines.FindAsync(id);
+
+			}
 			return await _dbContext.Set<T>().FindAsync(id);
+
 		}
 	}
 }

@@ -11,6 +11,7 @@ namespace VaxScheduler.Core.Repositories
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T> GetByIdAsync(int id);
-		Task<int> Add(T entity) ;
+		Task AddAsync(T entity) ;
+		Task DeleteAsync<T>(T entity);
 	}
 }
