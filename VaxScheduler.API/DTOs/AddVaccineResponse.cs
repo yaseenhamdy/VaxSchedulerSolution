@@ -6,5 +6,7 @@ namespace VaxScheduler.API.DTOs
 	{
 		public string Name { get; set; }
 		public StatuseOfResonse Status { get; set; }
+		public string[] VaccinationCenterNames { get; set; }
+
 	}
 }

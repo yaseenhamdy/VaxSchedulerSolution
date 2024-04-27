@@ -31,11 +31,26 @@ namespace VaxScheduler.API.Controllers
 			var Vaccines = await _vaccineRepo.GetAllAsync();
 
 			if (Vaccines?.Count() > 0)
-				return Ok(Vaccines);
+			{
+				var vaccineDTO = Vaccines.Select(vaccine => new GetAllVaccineDTO
+				{
+					Id = vaccine.Id,
+					Name = vaccine.Name,
+					Precautions = vaccine.Precautions,
+					DurationBetweenDoses = vaccine.DurationBetweenDoses,
+					VaccinationCenterName = vaccine.VaccineVaccinationCenter.Select(v => new VaccineCenterVaccineInVaccineDTO
+					{
+						VaccinationCenterName = v.VaccinationCenter.Name
+					}).ToList()
+				}).ToList();
+
+				return Ok(vaccineDTO);
+			}
 			else
 				return BadRequest(new StatuseOfResonse
 				{
 					Message = false,
+					Value = "There Are No Vaccines"
 				});
 
 		}
@@ -56,21 +71,42 @@ namespace VaxScheduler.API.Controllers
 						Name = model.Name,
 						DurationBetweenDoses = model.DurationBetweenDoses,
 						Precautions = model.Precautions,
-						AdminId = 2
+						AdminId = 2,
 					};
 					await _vaccineRepo.AddAsync(vaccine);
 					int Result = await _unitOfWork.Complete();
 					if (Result > 0)
 					{
+						foreach (var vaccinationCenterId in model.VaccinationCenterIds)
+						{
+							var vaccineVaccinationCenter = new VaccineVaccinationCenter
+							{
+								VaccineId = vaccine.Id,
+								VaccinationCenterId = vaccinationCenterId
+							};
+
+							_dbContext.vaccineVaccinationCenters.Add(vaccineVaccinationCenter);
+						}
+
+						await _unitOfWork.Complete();
+
+						var vaccinationCenters = await _dbContext.VaccinationCenters
+	                                            	.Where(vc => model.VaccinationCenterIds.Contains(vc.Id))
+	                                               	.ToListAsync();
+
+						var vaccinationCenterNames = vaccinationCenters.Select(vc => vc.Name).ToArray();
 						return Ok(new AddVaccineResponse
 						{
 							Name = model.Name,
+							VaccinationCenterNames = vaccinationCenterNames,
 							Status = new StatuseOfResonse()
 							{
 								Message = true,
 								Value = "Success"
 
 							}
+
+
 						});
 					}
 					else
@@ -235,20 +271,20 @@ namespace VaxScheduler.API.Controllers
 			if (vaccine is not null)
 			{
 
-				var vaccineDTOs = new GetVaccineByIdDTO
+				var vaccineDTO = new GetAllVaccineDTO
 				{
-					id = vaccine.Id,
+					Id = vaccine.Id,
 					Name = vaccine.Name,
-					DurationBetweenDoses = vaccine.DurationBetweenDoses,
 					Precautions = vaccine.Precautions,
-					Status = new StatuseOfResonse
+					DurationBetweenDoses = vaccine.DurationBetweenDoses,
+					VaccinationCenterName = vaccine.VaccineVaccinationCenter.Select(v => new VaccineCenterVaccineInVaccineDTO
 					{
-						Message = true,
-						Value = "Success"
-					}
+						VaccinationCenterName = v.VaccinationCenter.Name
+					}).ToList()
 				};
 
-				return Ok(vaccineDTOs);
+				return Ok(vaccineDTO);
+
 			}
 			else
 			{

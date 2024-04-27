@@ -32,7 +32,10 @@ namespace VaxScheduler.Repository
 		{
 			if (typeof(T) == typeof(Vaccine))
 			{
-				return (IEnumerable<T>)await _dbContext.Vaccines.ToListAsync();
+				return (IEnumerable<T>)await _dbContext.Vaccines
+														.Include(v => v.VaccineVaccinationCenter)
+														.ThenInclude(vvc => vvc.VaccinationCenter)
+														.ToListAsync();
 
 			}
 			else if (typeof(T) == typeof(VaccinationCenter))
@@ -68,8 +71,9 @@ namespace VaxScheduler.Repository
 			}
 			else if (typeof(T) == typeof(Vaccine))
 			{
-				return (T)(object)await _dbContext.Vaccines.FindAsync(id);
-
+				return (T)(object)await _dbContext.Vaccines.Include(v=> v.VaccineVaccinationCenter)
+														.ThenInclude(vvc => vvc.VaccinationCenter)
+														.SingleOrDefaultAsync(v => v.Id == id);
 			}
 			return await _dbContext.Set<T>().FindAsync(id);
 

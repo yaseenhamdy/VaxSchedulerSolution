@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VaxScheduler.Core.Entities
 {
-    public class VaccineVaccinationCenter
+    public class VaccineVaccinationCenter 
     {
 
         public VaccinationCenter VaccinationCenter { get; set; }

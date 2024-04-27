@@ -28,6 +28,16 @@ namespace VaxScheduler.API
 
 					);
 			});
+			builder.Services.AddCors(options =>
+			{
+				options.AddPolicy("AllowSpecificOrigin", builder =>
+				{
+					builder
+						.AllowAnyOrigin()
+						.AllowAnyMethod()
+						.AllowAnyHeader();
+				});
+			});
 			builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 			builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
@@ -75,6 +85,8 @@ namespace VaxScheduler.API
 
 
 			app.MapControllers();
+
+			app.UseCors("AllowSpecificOrigin");
 
 			app.Run();
 		}
