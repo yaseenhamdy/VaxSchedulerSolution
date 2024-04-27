@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -29,7 +30,7 @@ namespace VaxScheduler.API.Controllers
 		{
 			var Vaccines = await _vaccineRepo.GetAllAsync();
 
-			if(Vaccines?.Count() > 0) 
+			if (Vaccines?.Count() > 0)
 				return Ok(Vaccines);
 			else
 				return BadRequest(new StatuseOfResonse
@@ -55,7 +56,7 @@ namespace VaxScheduler.API.Controllers
 						Name = model.Name,
 						DurationBetweenDoses = model.DurationBetweenDoses,
 						Precautions = model.Precautions,
-						AdminId = 1
+						AdminId = 2
 					};
 					await _vaccineRepo.AddAsync(vaccine);
 					int Result = await _unitOfWork.Complete();
@@ -79,7 +80,7 @@ namespace VaxScheduler.API.Controllers
 							Message = false,
 						});
 					}
-					
+
 
 				}
 				else
@@ -153,5 +154,112 @@ namespace VaxScheduler.API.Controllers
 
 
 		}
+
+
+
+
+
+
+		[HttpPut("{id}")]
+		public async Task<ActionResult<UserDTO>> UpdateVaccine(int id, AddVaccineDTO model)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "Invalid model data."
+				});
+			}
+
+			var vaccine = await _vaccineRepo.GetByIdAsync(id);
+			if (vaccine == null)
+			{
+				return NotFound(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "Vaccine not found."
+				});
+			}
+
+			var existingCenterWithEmail = await _dbContext.Vaccines
+				.Where(c => c.Name == model.Name && c.Id != id)
+				.FirstOrDefaultAsync();
+
+			if (existingCenterWithEmail != null)
+			{
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "Email already exists with another center."
+				});
+			}
+
+			vaccine.Name = model.Name;
+			vaccine.Precautions = model.Precautions;
+			vaccine.DurationBetweenDoses = model.DurationBetweenDoses;
+
+
+			await _vaccineRepo.UpdateAsync(vaccine);
+			int result = await _unitOfWork.Complete();
+			if (result > 0)
+			{
+				return StatusCode(500, new StatuseOfResonse
+				{
+					Message = false,
+					Value = "An error occurred while updating the vaccine."
+				});
+			}
+
+			return Ok(new UpdateVaccineResponse
+			{
+				Name = vaccine.Name,
+				Precautions = vaccine.Precautions,
+				DurationBetweenDoses = vaccine.DurationBetweenDoses,
+				Status = new StatuseOfResonse
+				{
+					Message = true,
+					Value = "Success"
+				}
+			});
+		}
+
+
+
+
+
+		[HttpGet("{id}")]
+		public async Task<ActionResult<GetVaccineByIdDTO>> GetVaccinationCenterById(int id)
+		{
+			var vaccine = await _vaccineRepo.GetByIdAsync(id);
+			if (vaccine is not null)
+			{
+
+				var vaccineDTOs = new GetVaccineByIdDTO
+				{
+					id = vaccine.Id,
+					Name = vaccine.Name,
+					DurationBetweenDoses = vaccine.DurationBetweenDoses,
+					Precautions = vaccine.Precautions,
+					Status = new StatuseOfResonse
+					{
+						Message = true,
+						Value = "Success"
+					}
+				};
+
+				return Ok(vaccineDTOs);
+			}
+			else
+			{
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "There Are No Vaccination Centers "
+				});
+			}
+
+		}
+
 	}
 }

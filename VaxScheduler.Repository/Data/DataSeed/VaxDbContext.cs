@@ -10,7 +10,7 @@ using VaxScheduler.Core.Identity;
 
 namespace VaxScheduler.Repository.Data
 {
-	public class VaxDbContext : DbContext
+	public class VaxDbContext : DbContext 
 	{
 		public VaxDbContext(DbContextOptions<VaxDbContext> Options) : base(Options)
 		{

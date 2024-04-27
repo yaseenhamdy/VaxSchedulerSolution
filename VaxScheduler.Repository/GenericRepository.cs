@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VaxScheduler.Core.Entities;
+using VaxScheduler.Core.Interfaces;
 using VaxScheduler.Core.Repositories;
 using VaxScheduler.Repository.Data;
 
@@ -37,11 +38,17 @@ namespace VaxScheduler.Repository
 			else if (typeof(T) == typeof(VaccinationCenter))
 			{
 				return (IEnumerable<T>)await _dbContext.VaccinationCenters
-				                                     .Include(c => c.VaccineVaccinationCenter)
-				                                    	.ThenInclude(vvc => vvc.Vaccine)
-			                                        	.ToListAsync();
+													 .Include(c => c.VaccineVaccinationCenter)
+														.ThenInclude(vvc => vvc.Vaccine)
+														.ToListAsync();
 
 			}
+			else if (typeof(T) == typeof(VaccinationCenter))
+			{
+				return (IEnumerable<T>)await _dbContext.Admins.ToListAsync();
+
+			}
+
 			else
 			{
 				return await _dbContext.Set<T>().ToListAsync();
@@ -54,7 +61,9 @@ namespace VaxScheduler.Repository
 		{
 			if (typeof(T) == typeof(VaccinationCenter))
 			{
-				return (T)(object)await _dbContext.VaccinationCenters.FindAsync(id);
+				return (T)(object)await _dbContext.VaccinationCenters.Include(c => c.VaccineVaccinationCenter)
+														.ThenInclude(vvc => vvc.Vaccine)
+														.SingleOrDefaultAsync(c => c.Id == id);
 
 			}
 			else if (typeof(T) == typeof(Vaccine))
@@ -63,6 +72,13 @@ namespace VaxScheduler.Repository
 
 			}
 			return await _dbContext.Set<T>().FindAsync(id);
+
+		}
+
+		public async Task UpdateAsync(T entity)
+		{
+			_dbContext.Update(entity);
+			await _dbContext.SaveChangesAsync();
 
 		}
 	}
