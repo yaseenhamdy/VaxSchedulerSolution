@@ -229,7 +229,7 @@ namespace VaxScheduler.API.Controllers
 			}
 
 			vCenter.Name = model.Name;
-			vCenter.Email = model.Email; 
+			vCenter.Email = model.Email;
 			vCenter.Location = model.Location;
 
 			if (!string.IsNullOrEmpty(model.Password))
@@ -266,38 +266,38 @@ namespace VaxScheduler.API.Controllers
 
 
 
-			[HttpGet("{id}")]
-			public async Task<ActionResult<List<GetAllCenter>>> GetVaccinationCenterById(int id)
+		[HttpGet("{id}")]
+		public async Task<ActionResult<List<GetAllCenter>>> GetVaccinationCenterById(int id)
+		{
+			var center = await _centerRepo.GetByIdAsync(id);
+			if (center is not null)
 			{
-				var center = await _centerRepo.GetByIdAsync(id);
-				if (center is not null)
-				{
 
 				var centerDtos = new GetAllCenter
-					{
-						Id = center.Id,
-						Name = center.Name,
-						Email = center.Email,
-						Location = center.Location,
-						Role = center.Role,
-						VaccineNames = center.VaccineVaccinationCenter.Select(vvc => new VaccineVaccinationCenterDto
-						{
-							VaccineName = vvc.Vaccine.Name
-						}).ToList()
-					};
-
-					return Ok(centerDtos);
-				}
-				else
 				{
-					return BadRequest(new StatuseOfResonse
+					Id = center.Id,
+					Name = center.Name,
+					Email = center.Email,
+					Location = center.Location,
+					Role = center.Role,
+					VaccineNames = center.VaccineVaccinationCenter.Select(vvc => new VaccineVaccinationCenterDto
 					{
-						Message = false,
-						Value = "There Are No Vaccination Centers "
-					});
-				}
+						VaccineName = vvc.Vaccine.Name
+					}).ToList()
+				};
 
+				return Ok(centerDtos);
 			}
+			else
+			{
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "There Are No Vaccination Centers "
+				});
+			}
+
+		}
 
 
 	}
