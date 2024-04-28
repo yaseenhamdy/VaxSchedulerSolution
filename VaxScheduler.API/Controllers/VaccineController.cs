@@ -92,8 +92,8 @@ namespace VaxScheduler.API.Controllers
 						await _unitOfWork.Complete();
 
 						var vaccinationCenters = await _dbContext.VaccinationCenters
-	                                            	.Where(vc => model.VaccinationCenterIds.Contains(vc.Id))
-	                                               	.ToListAsync();
+													.Where(vc => model.VaccinationCenterIds.Contains(vc.Id))
+													   .ToListAsync();
 
 						var vaccinationCenterNames = vaccinationCenters.Select(vc => vc.Name).ToArray();
 						return Ok(new AddVaccineResponse
@@ -200,6 +200,102 @@ namespace VaxScheduler.API.Controllers
 		[HttpPut("{id}")]
 		public async Task<ActionResult<UserDTO>> UpdateVaccine(int id, AddVaccineDTO model)
 		{
+			//		if (!ModelState.IsValid)
+			//		{
+			//			return BadRequest(new StatuseOfResonse
+			//			{
+			//				Message = false,
+			//				Value = "Invalid model data."
+			//			});
+			//		}
+
+			//		var vaccine = await _vaccineRepo.GetByIdAsync(id);
+			//		if (vaccine == null)
+			//		{
+			//			return NotFound(new StatuseOfResonse
+			//			{
+			//				Message = false,
+			//				Value = "Vaccine not found."
+			//			});
+			//		}
+
+			//		var existingVaccinWithName = await _dbContext.Vaccines
+			//			.Where(c => c.Name == model.Name && c.Id != id)
+			//			.FirstOrDefaultAsync();
+
+			//		if (existingVaccinWithName != null)
+			//		{
+			//			return BadRequest(new StatuseOfResonse
+			//			{
+			//				Message = false,
+			//				Value = "Name already exists with another Vaccine."
+			//			});
+			//		}
+
+			//		vaccine.Name = model.Name;
+			//		vaccine.Precautions = model.Precautions;
+			//		vaccine.DurationBetweenDoses = model.DurationBetweenDoses;
+
+			//		foreach (var vaccinationCenterId in model.VaccinationCenterIds)
+			//		{
+			//			//var vaccineVaccinationCenter = new VaccineVaccinationCenter
+			//			//{
+			//			//	VaccineId = vaccine.Id,
+			//			//	VaccinationCenterId = vaccinationCenterId
+			//			//};
+			//			//await _vaccineRepo.UpdateAsync(vaccine);
+			//			//_dbContext.vaccineVaccinationCenters.Update(vaccineVaccinationCenter);
+
+
+			//			var existingVaccineVaccinationCenter = _dbContext.vaccineVaccinationCenters
+			//.Local
+			//.FirstOrDefault(vvc => vvc.VaccineId == vaccine.Id && vvc.VaccinationCenterId == vaccinationCenterId);
+
+			//			if (existingVaccineVaccinationCenter != null)
+			//			{
+			//				// Detach the existing entity from the context
+			//				_dbContext.Entry(existingVaccineVaccinationCenter).State = EntityState.Detached;
+			//			}
+
+			//			var newVaccineVaccinationCenter = new VaccineVaccinationCenter
+			//			{
+			//				VaccineId = vaccine.Id,
+			//				VaccinationCenterId = vaccinationCenterId
+			//			};
+
+			//			_dbContext.vaccineVaccinationCenters.Add(newVaccineVaccinationCenter);
+
+			//		}
+
+
+
+			//		int result = await _unitOfWork.Complete();
+			//		if (result > 0)
+			//		{
+			//			return StatusCode(500, new StatuseOfResonse
+			//			{
+			//				Message = false,
+			//				Value = "An error occurred while updating the vaccine."
+			//			});
+			//		}
+
+			//		return Ok(new UpdateVaccineResponse
+			//		{
+			//			Name = vaccine.Name,
+			//			Precautions = vaccine.Precautions,
+			//			DurationBetweenDoses = vaccine.DurationBetweenDoses,
+			//			Status = new StatuseOfResonse
+			//			{
+			//				Message = true,
+			//				Value = "Success"
+			//			}
+			//		});
+
+
+
+
+
+
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(new StatuseOfResonse
@@ -219,16 +315,16 @@ namespace VaxScheduler.API.Controllers
 				});
 			}
 
-			var existingCenterWithEmail = await _dbContext.Vaccines
+			var existingVaccinWithName = await _dbContext.Vaccines
 				.Where(c => c.Name == model.Name && c.Id != id)
 				.FirstOrDefaultAsync();
 
-			if (existingCenterWithEmail != null)
+			if (existingVaccinWithName != null)
 			{
 				return BadRequest(new StatuseOfResonse
 				{
 					Message = false,
-					Value = "Email already exists with another center."
+					Value = "Name already exists with another Vaccine."
 				});
 			}
 
@@ -236,10 +332,39 @@ namespace VaxScheduler.API.Controllers
 			vaccine.Precautions = model.Precautions;
 			vaccine.DurationBetweenDoses = model.DurationBetweenDoses;
 
+			var existingVaccineVaccinationCenters = await _dbContext.vaccineVaccinationCenters
+				.Where(vvc => vvc.VaccineId == vaccine.Id)
+				.ToListAsync();
 
-			await _vaccineRepo.UpdateAsync(vaccine);
+			_dbContext.vaccineVaccinationCenters.RemoveRange(existingVaccineVaccinationCenters);
+
+			foreach (var vaccinationCenterId in model.VaccinationCenterIds)
+			{
+				var newVaccineVaccinationCenter = new VaccineVaccinationCenter
+				{
+					VaccineId = vaccine.Id,
+					VaccinationCenterId = vaccinationCenterId
+				};
+
+				_dbContext.vaccineVaccinationCenters.Add(newVaccineVaccinationCenter);
+			}
+
 			int result = await _unitOfWork.Complete();
 			if (result > 0)
+			{
+				return Ok(new UpdateVaccineResponse
+				{
+					Name = vaccine.Name,
+					Precautions = vaccine.Precautions,
+					DurationBetweenDoses = vaccine.DurationBetweenDoses,
+					Status = new StatuseOfResonse
+					{
+						Message = true,
+						Value = "Success"
+					}
+				});
+			}
+			else
 			{
 				return StatusCode(500, new StatuseOfResonse
 				{
@@ -247,18 +372,7 @@ namespace VaxScheduler.API.Controllers
 					Value = "An error occurred while updating the vaccine."
 				});
 			}
-
-			return Ok(new UpdateVaccineResponse
-			{
-				Name = vaccine.Name,
-				Precautions = vaccine.Precautions,
-				DurationBetweenDoses = vaccine.DurationBetweenDoses,
-				Status = new StatuseOfResonse
-				{
-					Message = true,
-					Value = "Success"
-				}
-			});
+			
 		}
 
 
