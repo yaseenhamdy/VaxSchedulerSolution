@@ -42,6 +42,7 @@ namespace VaxScheduler.API.Controllers
 				var EmailFalg = await _dbContext.VaccinationCenters.Where(C => C.Email == model.Email).FirstOrDefaultAsync();
 				if (EmailFalg == null)
 				{
+					var AdminId = _dbContext.Admins.FirstOrDefault();
 					var center = new VaccinationCenter
 					{
 						Name = model.Name,
@@ -49,7 +50,7 @@ namespace VaxScheduler.API.Controllers
 						Password = model.Password,
 						Role = "Center",
 						Location = model.Location,
-						AdminId = 2
+						AdminId = AdminId.Id
 					};
 					var hasher = new PasswordHasher<VaccinationCenter>();
 					center.Password = hasher.HashPassword(center, model.Password);

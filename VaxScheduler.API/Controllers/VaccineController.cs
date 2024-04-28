@@ -66,12 +66,13 @@ namespace VaxScheduler.API.Controllers
 				var VaccineNameFlag = await _dbContext.Vaccines.Where(V => V.Name == model.Name).FirstOrDefaultAsync();
 				if (VaccineNameFlag == null)
 				{
+					var AdminId = _dbContext.Admins.FirstOrDefault();
 					var vaccine = new Vaccine()
 					{
 						Name = model.Name,
 						DurationBetweenDoses = model.DurationBetweenDoses,
 						Precautions = model.Precautions,
-						AdminId = 2,
+						AdminId = AdminId.Id,
 					};
 					await _vaccineRepo.AddAsync(vaccine);
 					int Result = await _unitOfWork.Complete();

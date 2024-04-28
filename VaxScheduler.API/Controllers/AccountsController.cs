@@ -29,6 +29,7 @@ namespace VaxScheduler.API.Controllers
 		{
 			if (ModelState.IsValid)
 			{
+				var AdminId = _dbContext.Admins.FirstOrDefault();
 				var patient = new Patient
 				{
 					Name = model.Name,
@@ -37,7 +38,7 @@ namespace VaxScheduler.API.Controllers
 					Role = "Patient",
 					Ssn = model.Ssn,
 					Phone = model.Phone,
-					AdminId = 2
+					AdminId = AdminId.Id
 
 				};
 
