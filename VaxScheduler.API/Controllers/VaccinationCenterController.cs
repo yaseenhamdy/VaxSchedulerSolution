@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
+using System.Security.Claims;
 using VaxScheduler.API.DTOs;
 using VaxScheduler.Core.Entities;
 using VaxScheduler.Core.Errors;
@@ -31,9 +33,20 @@ namespace VaxScheduler.API.Controllers
 
 		}
 
+		[HttpGet("some-action")]
+		public IActionResult SomeAction()
+		{
+			var userRole = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+			if (userRole != "Admin")
+			{
+				return Unauthorized("You do not have permission to view this resource.");
+			}
+			return Ok("Access granted to protected resource.");
+		}
 
 
 		[HttpPost("AddCenter")]
+		[Authorize(Roles = "Admin")]
 
 		public async Task<ActionResult<UserDTO>> AddVaccinationCenter(VaccinationCenterDTO model)
 		{
@@ -143,8 +156,8 @@ namespace VaxScheduler.API.Controllers
 
 
 
-
 		[HttpDelete]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<StatuseOfResonse>> DeleteVaccinationCenter(DeleteCenterDTO model)
 		{
 			if (ModelState.IsValid)
@@ -193,8 +206,8 @@ namespace VaxScheduler.API.Controllers
 		}
 
 
-
 		[HttpPut("{id}")]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<UserDTO>> UpdateVaccineCenter(int id, VaccinationCenterDTO model)
 		{
 			if (!ModelState.IsValid)

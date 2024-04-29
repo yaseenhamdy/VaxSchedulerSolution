@@ -21,16 +21,16 @@ namespace VaxScheduler.Repository.Data.Configurations
 
             builder.HasOne(vvc => vvc.Vaccine)
                 .WithMany(p => p.VaccineVaccinationCenter)
-                .HasForeignKey(vvc => vvc.VaccineId)
-	            .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(vvc => vvc.VaccineId);
+            //.OnDelete(DeleteBehavior.Cascade);
 
 
 
 
-			builder.HasOne(vvc => vvc.VaccinationCenter)
+            builder.HasOne(vvc => vvc.VaccinationCenter)
                 .WithMany(p => p.VaccineVaccinationCenter)
-                .HasForeignKey(vvc => vvc.VaccinationCenterId)
-	            .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(vvc => vvc.VaccinationCenterId);
+	            //.OnDelete(DeleteBehavior.Cascade);
 
 
 		}

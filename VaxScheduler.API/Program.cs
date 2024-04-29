@@ -1,6 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Writers;
+using System.Security.Claims;
+using System.Text;
 using VaxScheduler.Core.Repositories;
 using VaxScheduler.Core.Services;
 using VaxScheduler.Repository;
@@ -23,8 +28,8 @@ namespace VaxScheduler.API
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddDbContext<VaxDbContext>(Options =>
 			{
-				Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-					b => b.MigrationsAssembly("VaxScheduler.API")
+				Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
+					//b => b.MigrationsAssembly("VaxScheduler.API")
 
 					);
 			});
@@ -45,6 +50,33 @@ namespace VaxScheduler.API
 			//{
 			//	options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
 			//});
+
+
+
+
+			#region For Authentication
+			builder.Services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+					.AddJwtBearer(options =>
+			   {
+				   options.RequireHttpsMetadata = false; options.SaveToken = true;
+				   options.TokenValidationParameters = new TokenValidationParameters
+				   {
+					   ValidateIssuerSigningKey = true,
+					   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+					   ValidateIssuer = true,
+					   ValidateAudience = true,
+					   ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+					   ValidAudience = builder.Configuration["JWT:ValidAudience"],
+					   RoleClaimType = ClaimTypes.Role,  
+					   ClockSkew = TimeSpan.Zero
+				   };
+			   });
+			#endregion
+
 
 			builder.Services.AddScoped<ITokenService, TokenService>();
 
@@ -80,6 +112,8 @@ namespace VaxScheduler.API
 			}
 
 			app.UseHttpsRedirection();
+
+			app.UseAuthentication(); // This must be before UseAuthorization
 
 			app.UseAuthorization();
 

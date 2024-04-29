@@ -207,62 +207,62 @@ namespace VaxScheduler.API.Controllers
 
 
 
-		//[HttpPost("AddAdmin")]
-		//public async Task<ActionResult<UserDTO>> AddAdmin(AdminDTO model)
-		//{
-		//	if (ModelState.IsValid)
-		//	{
-		//		var admin = new Admin
-		//		{
-		//			Name = model.Name,
-		//			Email = model.Email,
-		//			Password = model.Password,
-		//			Role = "Admin",
-		//		};
-		//		var hasher = new PasswordHasher<Admin>();
-		//		admin.Password = hasher.HashPassword(admin, model.Password);
-		//		await _dbContext.AddAsync(admin);
-		//		int Result = await _dbContext.SaveChangesAsync();
-		//		if (Result > 0)
-		//		{
-		//			return Ok(new UserDTO()
-		//			{
-		//				Name = model.Name,
-		//				Email = model.Email,
-		//				Role = "Admin",
-		//				Token = await _tokenService.CreateAdminTokenAsync(admin),
-		//				Status = new StatuseOfResonse()
-		//				{
-		//					Message = true,
-		//					Value = "Success"
+		[HttpPost("AddAdmin")]
+		public async Task<ActionResult<UserDTO>> AddAdmin(AdminDTO model)
+		{
+			if (ModelState.IsValid)
+			{
+				var admin = new Admin
+				{
+					Name = model.Name,
+					Email = model.Email,
+					Password = model.Password,
+					Role = "Admin",
+				};
+				var hasher = new PasswordHasher<Admin>();
+				admin.Password = hasher.HashPassword(admin, model.Password);
+				await _dbContext.AddAsync(admin);
+				int Result = await _dbContext.SaveChangesAsync();
+				if (Result > 0)
+				{
+					return Ok(new UserDTO()
+					{
+						Name = model.Name,
+						Email = model.Email,
+						Role = "Admin",
+						Token = await _tokenService.CreateAdminTokenAsync(admin),
+						Status = new StatuseOfResonse()
+						{
+							Message = true,
+							Value = "Success"
 
-		//				}
+						}
 
-		//			});
-		//		}
-		//		else
-		//		{
-		//			return BadRequest(new StatuseOfResonse
-		//			{
-		//				Message = false,
-		//				Value = "Email Alrady Exist"
-		//			});
+					});
+				}
+				else
+				{
+					return BadRequest(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "Email Alrady Exist"
+					});
 
-		//		}
-
-
+				}
 
 
 
-		//	}
-		//	else
-		//		return BadRequest(new StatuseOfResonse
-		//		{
-		//			Message = false,
-		//			Value = "Email Alrady Exist"
-		//		});
 
-		//}
+
+			}
+			else
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "Email Alrady Exist"
+				});
+
+		}
 
 	}
 }

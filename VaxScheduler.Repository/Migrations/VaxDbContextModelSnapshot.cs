@@ -7,7 +7,7 @@ using VaxScheduler.Repository.Data;
 
 #nullable disable
 
-namespace VaxScheduler.API.Migrations
+namespace VaxScheduler.Repository.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
     partial class VaxDbContextModelSnapshot : ModelSnapshot
@@ -45,7 +45,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccinationCenterId");
 
-                    b.ToTable("Certificates", (string)null);
+                    b.ToTable("Certificates");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.Patient", b =>
@@ -92,7 +92,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccinationCenterId");
 
-                    b.ToTable("Patients", (string)null);
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.PatientVaccine", b =>
@@ -107,7 +107,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccineId");
 
-                    b.ToTable("patientVaccines", (string)null);
+                    b.ToTable("patientVaccines");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.VaccinationCenter", b =>
@@ -145,7 +145,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("VaccinationCenters", (string)null);
+                    b.ToTable("VaccinationCenters");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.Vaccine", b =>
@@ -174,7 +174,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("Vaccines", (string)null);
+                    b.ToTable("Vaccines");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.VaccineVaccinationCenter", b =>
@@ -189,7 +189,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasIndex("VaccineId");
 
-                    b.ToTable("vaccineVaccinationCenters", (string)null);
+                    b.ToTable("vaccineVaccinationCenters");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Identity.Admin", b =>
@@ -218,7 +218,7 @@ namespace VaxScheduler.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.Certificate", b =>
@@ -226,13 +226,13 @@ namespace VaxScheduler.API.Migrations
                     b.HasOne("VaxScheduler.Core.Entities.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("VaxScheduler.Core.Entities.VaccinationCenter", "VaccinationCenter")
                         .WithMany()
                         .HasForeignKey("VaccinationCenterId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Patient");
@@ -245,7 +245,7 @@ namespace VaxScheduler.API.Migrations
                     b.HasOne("VaxScheduler.Core.Identity.Admin", "Admin")
                         .WithMany()
                         .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("VaxScheduler.Core.Entities.VaccinationCenter", "VaccinationCenter")
@@ -264,7 +264,7 @@ namespace VaxScheduler.API.Migrations
                     b.HasOne("VaxScheduler.Core.Entities.Patient", "Patient")
                         .WithMany("patientVaccines")
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("VaxScheduler.Core.Entities.Vaccine", "Vaccine")
@@ -283,7 +283,7 @@ namespace VaxScheduler.API.Migrations
                     b.HasOne("VaxScheduler.Core.Identity.Admin", "Admin")
                         .WithMany()
                         .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Admin");
@@ -294,7 +294,7 @@ namespace VaxScheduler.API.Migrations
                     b.HasOne("VaxScheduler.Core.Identity.Admin", "Admin")
                         .WithMany()
                         .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Admin");
@@ -305,13 +305,13 @@ namespace VaxScheduler.API.Migrations
                     b.HasOne("VaxScheduler.Core.Entities.VaccinationCenter", "VaccinationCenter")
                         .WithMany("VaccineVaccinationCenter")
                         .HasForeignKey("VaccinationCenterId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VaxScheduler.Core.Entities.Vaccine", "Vaccine")
                         .WithMany("VaccineVaccinationCenter")
                         .HasForeignKey("VaccineId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("VaccinationCenter");

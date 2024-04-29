@@ -22,7 +22,9 @@ namespace VaxScheduler.Repository.Data.Configurations
             builder.HasOne(pv => pv.Patient)
                 .WithMany(p => p.patientVaccines)
                 .HasForeignKey(pv => pv.PatientId)
-				.OnDelete(DeleteBehavior.Cascade);
+					.OnDelete(DeleteBehavior.NoAction);
+
+			//.OnDelete(DeleteBehavior.Cascade);
 
 
 

@@ -20,10 +20,12 @@ namespace VaxScheduler.Repository.Data.Configurations
 			builder.Property(v => v.Role).IsRequired();
 
 
-			builder.HasOne(p => p.Admin)
+            builder.HasOne(p => p.Admin)
                .WithMany()
                .HasForeignKey(p => p.AdminId)
-			   .OnDelete(DeleteBehavior.Cascade);
+				   .OnDelete(DeleteBehavior.NoAction);
+
+			//.OnDelete(DeleteBehavior.Cascade);
 
 
 
