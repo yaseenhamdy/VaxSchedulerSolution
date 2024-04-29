@@ -11,7 +11,7 @@ namespace VaxScheduler.Core.Entities
         public Patient Patient { get; set; }
         public int PatientId { get; set; }
 
-
+        public int NumOfDoses { get; set; }
         public Vaccine Vaccine { get; set; }
         public int VaccineId { get;set; }
     }
