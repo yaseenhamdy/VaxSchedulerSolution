@@ -291,7 +291,7 @@ namespace VaxScheduler.API.Controllers
 						return BadRequest(new StatuseOfResonse
 						{
 							Message = false,
-							Value = "Wrong Password"
+							Value = "Wrong Email Or Password"
 						});
 					}
 

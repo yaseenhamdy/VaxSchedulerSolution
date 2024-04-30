@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Security.Claims;
 using VaxScheduler.API.DTOs;
 using VaxScheduler.Core.Entities;
 using VaxScheduler.Core.Errors;
@@ -24,6 +26,18 @@ namespace VaxScheduler.API.Controllers
 			_dbContext = dbContext;
 			_unitOfWork = unitOfWork;
 		}
+
+		[HttpGet("some-action")]
+		public IActionResult SomeAction()
+		{
+			var userRole = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+			if (userRole != "Admin")
+			{
+				return Unauthorized("You do not have permission to view this resource.");
+			}
+			return Ok("Access granted to protected resource.");
+		}
+
 
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<Vaccine>>> GetAllVaccine()
@@ -58,6 +72,8 @@ namespace VaxScheduler.API.Controllers
 
 
 		[HttpPost("AddVaccine")]
+		[Authorize(Roles = "Admin")]
+
 		public async Task<ActionResult<AddVaccineResponse>> AddVaccine(AddVaccineDTO model)
 		{
 
@@ -144,6 +160,8 @@ namespace VaxScheduler.API.Controllers
 
 
 		[HttpDelete]
+		[Authorize(Roles = "Admin")]
+
 		public async Task<ActionResult<StatuseOfResonse>> DeleteVaccine(DeleteCenterDTO model)
 		{
 			if (ModelState.IsValid)
@@ -198,103 +216,10 @@ namespace VaxScheduler.API.Controllers
 
 
 		[HttpPut("{id}")]
+		[Authorize(Roles = "Admin")]
+
 		public async Task<ActionResult<UserDTO>> UpdateVaccine(int id, AddVaccineDTO model)
 		{
-			//		if (!ModelState.IsValid)
-			//		{
-			//			return BadRequest(new StatuseOfResonse
-			//			{
-			//				Message = false,
-			//				Value = "Invalid model data."
-			//			});
-			//		}
-
-			//		var vaccine = await _vaccineRepo.GetByIdAsync(id);
-			//		if (vaccine == null)
-			//		{
-			//			return NotFound(new StatuseOfResonse
-			//			{
-			//				Message = false,
-			//				Value = "Vaccine not found."
-			//			});
-			//		}
-
-			//		var existingVaccinWithName = await _dbContext.Vaccines
-			//			.Where(c => c.Name == model.Name && c.Id != id)
-			//			.FirstOrDefaultAsync();
-
-			//		if (existingVaccinWithName != null)
-			//		{
-			//			return BadRequest(new StatuseOfResonse
-			//			{
-			//				Message = false,
-			//				Value = "Name already exists with another Vaccine."
-			//			});
-			//		}
-
-			//		vaccine.Name = model.Name;
-			//		vaccine.Precautions = model.Precautions;
-			//		vaccine.DurationBetweenDoses = model.DurationBetweenDoses;
-
-			//		foreach (var vaccinationCenterId in model.VaccinationCenterIds)
-			//		{
-			//			//var vaccineVaccinationCenter = new VaccineVaccinationCenter
-			//			//{
-			//			//	VaccineId = vaccine.Id,
-			//			//	VaccinationCenterId = vaccinationCenterId
-			//			//};
-			//			//await _vaccineRepo.UpdateAsync(vaccine);
-			//			//_dbContext.vaccineVaccinationCenters.Update(vaccineVaccinationCenter);
-
-
-			//			var existingVaccineVaccinationCenter = _dbContext.vaccineVaccinationCenters
-			//.Local
-			//.FirstOrDefault(vvc => vvc.VaccineId == vaccine.Id && vvc.VaccinationCenterId == vaccinationCenterId);
-
-			//			if (existingVaccineVaccinationCenter != null)
-			//			{
-			//				// Detach the existing entity from the context
-			//				_dbContext.Entry(existingVaccineVaccinationCenter).State = EntityState.Detached;
-			//			}
-
-			//			var newVaccineVaccinationCenter = new VaccineVaccinationCenter
-			//			{
-			//				VaccineId = vaccine.Id,
-			//				VaccinationCenterId = vaccinationCenterId
-			//			};
-
-			//			_dbContext.vaccineVaccinationCenters.Add(newVaccineVaccinationCenter);
-
-			//		}
-
-
-
-			//		int result = await _unitOfWork.Complete();
-			//		if (result > 0)
-			//		{
-			//			return StatusCode(500, new StatuseOfResonse
-			//			{
-			//				Message = false,
-			//				Value = "An error occurred while updating the vaccine."
-			//			});
-			//		}
-
-			//		return Ok(new UpdateVaccineResponse
-			//		{
-			//			Name = vaccine.Name,
-			//			Precautions = vaccine.Precautions,
-			//			DurationBetweenDoses = vaccine.DurationBetweenDoses,
-			//			Status = new StatuseOfResonse
-			//			{
-			//				Message = true,
-			//				Value = "Success"
-			//			}
-			//		});
-
-
-
-
-
 
 			if (!ModelState.IsValid)
 			{
@@ -374,7 +299,6 @@ namespace VaxScheduler.API.Controllers
 			}
 			
 		}
-
 
 
 

@@ -40,7 +40,9 @@ namespace VaxScheduler.API
 					builder
 						.AllowAnyOrigin()
 						.AllowAnyMethod()
-						.AllowAnyHeader();
+						.AllowAnyHeader()
+						.WithExposedHeaders("Content-Disposition") 
+						.SetIsOriginAllowedToAllowWildcardSubdomains();
 				});
 			});
 			builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
