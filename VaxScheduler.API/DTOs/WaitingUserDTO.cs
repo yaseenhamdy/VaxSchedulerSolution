@@ -10,7 +10,8 @@ namespace VaxScheduler.API.DTOs
 		public string Ssn { get; set; }
 		public string Email { get; set; }
 
-		public string Phone { get; set; }
+        public string Password { get; set; }
+        public string Phone { get; set; }
 
 		public string VaccinationCenterName { get; set; }
 		public StatuseOfResonse Status { get; set; }

@@ -441,6 +441,7 @@ namespace VaxScheduler.API.Controllers
 					Name = rPatients.Name,
 					Email = rPatients.Email,
 					Phone = rPatients.Phone,
+					Password = rPatients.Password,
 					Ssn = rPatients.Ssn,
 					//VaccinationCenterName = p.VaccinationCenter?.Name,
 					Status = new StatuseOfResonse
