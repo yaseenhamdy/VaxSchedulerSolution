@@ -69,15 +69,15 @@ namespace VaxScheduler.API.Controllers
 				var hasher = new PasswordHasher<Patient>();
 				patient.Password = hasher.HashPassword(patient, model.Password);
 
-				if (int.TryParse(model.VaccinationCenterId.ToString(), out int vaccinationCenterId))
-				{
-					patient.VaccinationCenterId = vaccinationCenterId;
-				}
-				else
-				{
-					ModelState.AddModelError("VaccinationCenterId", "Invalid Vaccination Center ID");
-					return BadRequest(ModelState);
-				}
+				//if (int.TryParse(model.VaccinationCenterId.ToString(), out int vaccinationCenterId))
+				//{
+				//	patient.VaccinationCenterId = vaccinationCenterId;
+				//}
+				//else
+				//{
+				//	ModelState.AddModelError("VaccinationCenterId", "Invalid Vaccination Center ID");
+				//	return BadRequest(ModelState);
+				//}
 
 				var EmailFalg = await _dbContext.Patients.Where(P => P.Email == model.Email).FirstOrDefaultAsync();
 				if (EmailFalg == null)
@@ -142,35 +142,49 @@ namespace VaxScheduler.API.Controllers
 
 
 		[Authorize(Roles = "Admin")]
-		[HttpPost("RejectUser")]
+		[HttpDelete("RejectUser")]
 		public async Task<ActionResult<StatuseOfResonse>> RejectUser(RegisterDTO model)
 		{
 			if (ModelState.IsValid)
 			{
+
 				var RPatient = await _dbContext.RegisteredPatients.FirstOrDefaultAsync(p => p.Email == model.Email);
-				await _rAccRepo.DeleteAsync(RPatient);
-				int Result = await _unitOfWork.Complete();
-				if (Result > 0)
+				if (RPatient == null)
 				{
-					return Ok(new StatuseOfResonse()
+					return BadRequest(new StatuseOfResonse()
 					{
-
-						Message = true,
-						Value = "Rejected User Successfully"
-
+						Message = false,
+						Value = "No Waiting Users Exist"
 
 					});
 				}
 				else
 				{
-					return BadRequest(new StatuseOfResonse()
+					await _rAccRepo.DeleteAsync(RPatient);
+					int Result = await _unitOfWork.Complete();
+					if (Result > 0)
 					{
-						Message = false,
-						Value = "No Rows Deleted"
+						return Ok(new StatuseOfResonse()
+						{
 
-					});
+							Message = true,
+							Value = "Rejected User Successfully"
 
+
+						});
+					}
+					else
+					{
+						return BadRequest(new StatuseOfResonse()
+						{
+							Message = false,
+							Value = "No Rows Deleted"
+
+						});
+
+					}
 				}
+
 			}
 			else
 			{
@@ -210,16 +224,16 @@ namespace VaxScheduler.API.Controllers
 				var hasher = new PasswordHasher<RegisteredPatient>();
 				RPatient.Password = hasher.HashPassword(RPatient, model.Password);
 
-				if (int.TryParse(model.VaccinationCenterId.ToString(), out int vaccinationCenterId))
-				{
-					RPatient.VaccinationCenterId = vaccinationCenterId;
-				}
-				else
-				{
-					ModelState.AddModelError("VaccinationCenterId", "Invalid Vaccination Center ID");
-					return BadRequest(ModelState);
-				}
-				var EmailFalg = await _dbContext.Patients.Where(P => P.Email == model.Email).FirstOrDefaultAsync();
+				//if (int.TryParse(model.VaccinationCenterId.ToString(), out int vaccinationCenterId))
+				//{
+				//	RPatient.VaccinationCenterId = vaccinationCenterId;
+				//}
+				//else
+				//{
+				//	ModelState.AddModelError("VaccinationCenterId", "Invalid Vaccination Center ID");
+				//	return BadRequest(ModelState);
+				//}
+				var EmailFalg = await _dbContext.RegisteredPatients.Where(P => P.Email == model.Email).FirstOrDefaultAsync();
 				if (EmailFalg == null)
 				{
 					await _dbContext.RegisteredPatients.AddAsync(RPatient);
@@ -381,12 +395,12 @@ namespace VaxScheduler.API.Controllers
 			{
 				var rPatientDTOs = rPatients.Select(p => new WaitingUserDTO
 				{
-					Id = p.Id, 
+					Id = p.Id,
 					Name = p.Name,
 					Email = p.Email,
 					Phone = p.Phone,
 					Ssn = p.Ssn,
-					VaccinationCenterName = p.VaccinationCenter?.Name,
+					//VaccinationCenterName = p.VaccinationCenter?.Name,
 					Status = new StatuseOfResonse
 					{
 						Message = true,
@@ -414,63 +428,105 @@ namespace VaxScheduler.API.Controllers
 
 
 
+		[Authorize(Roles = "Admin")]
+		[HttpGet("{id}")]
+		public async Task<ActionResult<UserDTO>> GetWaitingPatientsById(int id)
+		{
+			var rPatients = await _rAccRepo.GetByIdAsync(id);
+			if (rPatients is not null)
+			{
+				var rPatientDTOs = new WaitingUserDTO
+				{
+					Id = rPatients.Id,
+					Name = rPatients.Name,
+					Email = rPatients.Email,
+					Phone = rPatients.Phone,
+					Ssn = rPatients.Ssn,
+					//VaccinationCenterName = p.VaccinationCenter?.Name,
+					Status = new StatuseOfResonse
+					{
+						Message = true,
+						Value = "Success"
+					}
+				};
 
-		//[HttpPost("AddAdmin")]
-		//public async Task<ActionResult<UserDTO>> AddAdmin(AdminDTO model)
-		//{
-		//	if (ModelState.IsValid)
-		//	{
-		//		var admin = new Admin
-		//		{
-		//			Name = model.Name,
-		//			Email = model.Email,
-		//			Password = model.Password,
-		//			Role = "Admin",
-		//		};
-		//		var hasher = new PasswordHasher<Admin>();
-		//		admin.Password = hasher.HashPassword(admin, model.Password);
-		//		await _dbContext.AddAsync(admin);
-		//		int Result = await _dbContext.SaveChangesAsync();
-		//		if (Result > 0)
-		//		{
-		//			return Ok(new UserDTO()
-		//			{
-		//				Name = model.Name,
-		//				Email = model.Email,
-		//				Role = "Admin",
-		//				Token = await _tokenService.CreateAdminTokenAsync(admin),
-		//				Status = new StatuseOfResonse()
-		//				{
-		//					Message = true,
-		//					Value = "Success"
+				return Ok(rPatientDTOs);
+			}
+			else
+			{
+				return BadRequest(new StatuseOfResonse
+				{
 
-		//				}
+					Message = false,
+					Value = "No Users Exist"
+				});
+			}
 
-		//			});
-		//		}
-		//		else
-		//		{
-		//			return BadRequest(new StatuseOfResonse
-		//			{
-		//				Message = false,
-		//				Value = "Email Alrady Exist"
-		//			});
 
-		//		}
+
+		}
 
 
 
 
 
-		//	}
-		//	else
-		//		return BadRequest(new StatuseOfResonse
-		//		{
-		//			Message = false,
-		//			Value = "Email Alrady Exist"
-		//		});
 
-		//}
+		[HttpPost("AddAdmin")]
+		public async Task<ActionResult<UserDTO>> AddAdmin(AdminDTO model)
+		{
+			if (ModelState.IsValid)
+			{
+				var admin = new Admin
+				{
+					Name = model.Name,
+					Email = model.Email,
+					Password = model.Password,
+					Role = "Admin",
+				};
+				var hasher = new PasswordHasher<Admin>();
+				admin.Password = hasher.HashPassword(admin, model.Password);
+				await _dbContext.AddAsync(admin);
+				int Result = await _dbContext.SaveChangesAsync();
+				if (Result > 0)
+				{
+					return Ok(new UserDTO()
+					{
+						Name = model.Name,
+						Email = model.Email,
+						Role = "Admin",
+						Token = await _tokenService.CreateAdminTokenAsync(admin),
+						Status = new StatuseOfResonse()
+						{
+							Message = true,
+							Value = "Success"
+
+						}
+
+					});
+				}
+				else
+				{
+					return BadRequest(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "Email Alrady Exist"
+					});
+
+				}
+
+
+
+
+
+			}
+			else
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "Email Alrady Exist"
+				});
+
+		}
 
 	}
 }

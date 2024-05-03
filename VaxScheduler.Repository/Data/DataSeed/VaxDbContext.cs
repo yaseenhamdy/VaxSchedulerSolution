@@ -31,5 +31,6 @@ namespace VaxScheduler.Repository.Data
 
 		public DbSet<VaccineVaccinationCenter> vaccineVaccinationCenters { get; set; }
 		public DbSet<RegisteredPatient> RegisteredPatients { get; set; }
+		public DbSet<PatientVaccinationCenter> PatientVaccinationCenters { get; set; }
 	}
 }

@@ -8,8 +8,8 @@ namespace VaxScheduler.API.DTOs
         [Required]
         public string Name { get; set; }
         
-		[Required]
-		public int age { get; set; }
+		//[Required]
+		//public int age { get; set; }
 
 		[Required]
 
@@ -29,8 +29,8 @@ namespace VaxScheduler.API.DTOs
 		[Phone]
 		public string Phone { get; set; }
 
-		[Required]
-		public int VaccinationCenterId { get; set; }
+		//[Required]
+		//public int VaccinationCenterId { get; set; }
 
 	}
 }

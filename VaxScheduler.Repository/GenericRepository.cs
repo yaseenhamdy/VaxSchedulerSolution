@@ -53,7 +53,7 @@ namespace VaxScheduler.Repository
 			}
 			else if (typeof(T) == typeof(RegisteredPatient))
 			{
-				return (IEnumerable<T>)await _dbContext.RegisteredPatients.Include(RP=>RP.VaccinationCenter).ToListAsync();
+				return (IEnumerable<T>)await _dbContext.RegisteredPatients.ToListAsync();
 
 			}
 			else

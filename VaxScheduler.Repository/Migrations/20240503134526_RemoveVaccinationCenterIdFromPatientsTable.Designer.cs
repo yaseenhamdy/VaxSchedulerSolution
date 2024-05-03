@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VaxScheduler.Repository.Data;
 
@@ -11,9 +12,10 @@ using VaxScheduler.Repository.Data;
 namespace VaxScheduler.Repository.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
-    partial class VaxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240503134526_RemoveVaccinationCenterIdFromPatientsTable")]
+    partial class RemoveVaccinationCenterIdFromPatientsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,21 +93,6 @@ namespace VaxScheduler.Repository.Migrations
                     b.ToTable("Patients");
                 });
 
-            modelBuilder.Entity("VaxScheduler.Core.Entities.PatientVaccinationCenter", b =>
-                {
-                    b.Property<int>("VaccinationCenterId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.HasKey("VaccinationCenterId", "PatientId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("PatientVaccinationCenters");
-                });
-
             modelBuilder.Entity("VaxScheduler.Core.Entities.PatientVaccine", b =>
                 {
                     b.Property<int>("PatientId")
@@ -114,19 +101,15 @@ namespace VaxScheduler.Repository.Migrations
                     b.Property<int>("VaccineId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FirstDose")
+                    b.Property<int>("NumOfDoses")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FlagFirstDose")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FlagSecondDose")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SecondDose")
+                    b.Property<int?>("RegisteredPatientId")
                         .HasColumnType("int");
 
                     b.HasKey("PatientId", "VaccineId");
+
+                    b.HasIndex("RegisteredPatientId");
 
                     b.HasIndex("VaccineId");
 
@@ -316,25 +299,6 @@ namespace VaxScheduler.Repository.Migrations
                     b.Navigation("Admin");
                 });
 
-            modelBuilder.Entity("VaxScheduler.Core.Entities.PatientVaccinationCenter", b =>
-                {
-                    b.HasOne("VaxScheduler.Core.Entities.Patient", "Patient")
-                        .WithMany("PatientVaccinationCenters")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("VaxScheduler.Core.Entities.VaccinationCenter", "VaccinationCenter")
-                        .WithMany("PatientVaccinationCenters")
-                        .HasForeignKey("VaccinationCenterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("VaccinationCenter");
-                });
-
             modelBuilder.Entity("VaxScheduler.Core.Entities.PatientVaccine", b =>
                 {
                     b.HasOne("VaxScheduler.Core.Entities.Patient", "Patient")
@@ -342,6 +306,10 @@ namespace VaxScheduler.Repository.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("VaxScheduler.Core.Entities.RegisteredPatient", null)
+                        .WithMany("patientVaccines")
+                        .HasForeignKey("RegisteredPatientId");
 
                     b.HasOne("VaxScheduler.Core.Entities.Vaccine", "Vaccine")
                         .WithMany("patientVaccines")
@@ -408,15 +376,16 @@ namespace VaxScheduler.Repository.Migrations
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.Patient", b =>
                 {
-                    b.Navigation("PatientVaccinationCenters");
+                    b.Navigation("patientVaccines");
+                });
 
+            modelBuilder.Entity("VaxScheduler.Core.Entities.RegisteredPatient", b =>
+                {
                     b.Navigation("patientVaccines");
                 });
 
             modelBuilder.Entity("VaxScheduler.Core.Entities.VaccinationCenter", b =>
                 {
-                    b.Navigation("PatientVaccinationCenters");
-
                     b.Navigation("VaccineVaccinationCenter");
                 });
 

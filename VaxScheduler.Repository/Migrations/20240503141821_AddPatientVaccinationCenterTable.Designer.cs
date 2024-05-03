@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VaxScheduler.Repository.Data;
 
@@ -11,9 +12,10 @@ using VaxScheduler.Repository.Data;
 namespace VaxScheduler.Repository.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
-    partial class VaxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240503141821_AddPatientVaccinationCenterTable")]
+    partial class AddPatientVaccinationCenterTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,10 +125,15 @@ namespace VaxScheduler.Repository.Migrations
                     b.Property<int?>("FlagSecondDose")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RegisteredPatientId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("SecondDose")
                         .HasColumnType("int");
 
                     b.HasKey("PatientId", "VaccineId");
+
+                    b.HasIndex("RegisteredPatientId");
 
                     b.HasIndex("VaccineId");
 
@@ -343,6 +350,10 @@ namespace VaxScheduler.Repository.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("VaxScheduler.Core.Entities.RegisteredPatient", null)
+                        .WithMany("patientVaccines")
+                        .HasForeignKey("RegisteredPatientId");
+
                     b.HasOne("VaxScheduler.Core.Entities.Vaccine", "Vaccine")
                         .WithMany("patientVaccines")
                         .HasForeignKey("VaccineId")
@@ -410,6 +421,11 @@ namespace VaxScheduler.Repository.Migrations
                 {
                     b.Navigation("PatientVaccinationCenters");
 
+                    b.Navigation("patientVaccines");
+                });
+
+            modelBuilder.Entity("VaxScheduler.Core.Entities.RegisteredPatient", b =>
+                {
                     b.Navigation("patientVaccines");
                 });
 

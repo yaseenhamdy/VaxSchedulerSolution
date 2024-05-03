@@ -29,9 +29,9 @@ namespace VaxScheduler.Repository.Data.Configurations
 
 
 
-			builder.HasOne(p => p.VaccinationCenter)
-				.WithMany()
-				.HasForeignKey(p => p.VaccinationCenterId);
+			//builder.HasOne(p => p.VaccinationCenter)
+			//	.WithMany()
+			//	.HasForeignKey(p => p.VaccinationCenterId);
 
 
 
