@@ -12,5 +12,6 @@ namespace VaxScheduler.API.DTOs
 		public string Role { get; set; }
 		public List<VaccineVaccinationCenterDto> VaccineNames { get; set; }
 
-    }
+
+	}
 }

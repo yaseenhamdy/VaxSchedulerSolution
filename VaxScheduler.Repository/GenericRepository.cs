@@ -75,9 +75,19 @@ namespace VaxScheduler.Repository
 			}
 			else if (typeof(T) == typeof(Vaccine))
 			{
-				return (T)(object)await _dbContext.Vaccines.Include(v=> v.VaccineVaccinationCenter)
+				return (T)(object)await _dbContext.Vaccines.Include(v => v.VaccineVaccinationCenter)
 														.ThenInclude(vvc => vvc.VaccinationCenter)
 														.SingleOrDefaultAsync(v => v.Id == id);
+			}
+			else if (typeof(T) == typeof(Patient))
+			{
+				return (T)(object)await _dbContext.Patients
+		.Where(p => p.Id == id)
+		.Include(p => p.patientVaccines)
+			.ThenInclude(pv => pv.Vaccine)
+		.Include(p => p.patientVaccines)
+			.ThenInclude(pv => pv.VaccinationCenter)
+		.FirstOrDefaultAsync();
 			}
 			return await _dbContext.Set<T>().FindAsync(id);
 

@@ -18,5 +18,9 @@ namespace VaxScheduler.Core.Entities
 
         public Vaccine Vaccine { get; set; }
         public int VaccineId { get;set; }
-    }
+
+
+		public VaccinationCenter VaccinationCenter { get; set; }
+		public int VaccinationCenterId { get; set; }
+	}
 }

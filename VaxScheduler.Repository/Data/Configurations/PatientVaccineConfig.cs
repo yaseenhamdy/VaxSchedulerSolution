@@ -9,19 +9,19 @@ using VaxScheduler.Core.Entities;
 
 namespace VaxScheduler.Repository.Data.Configurations
 {
-    internal class PatientVaccineConfig : IEntityTypeConfiguration<PatientVaccine>
-    {
-        public void Configure(EntityTypeBuilder<PatientVaccine> builder)
-        {
-            builder.HasKey(pv => new
-            {
-                pv.PatientId,
-                pv.VaccineId
-            });
+	internal class PatientVaccineConfig : IEntityTypeConfiguration<PatientVaccine>
+	{
+		public void Configure(EntityTypeBuilder<PatientVaccine> builder)
+		{
+			builder.HasKey(pv => new
+			{
+				pv.PatientId,
+				pv.VaccineId
+			});
 
-            builder.HasOne(pv => pv.Patient)
-                .WithMany(p => p.patientVaccines)
-                .HasForeignKey(pv => pv.PatientId)
+			builder.HasOne(pv => pv.Patient)
+				.WithMany(p => p.patientVaccines)
+				.HasForeignKey(pv => pv.PatientId)
 					.OnDelete(DeleteBehavior.NoAction);
 
 			//.OnDelete(DeleteBehavior.Cascade);
@@ -30,13 +30,18 @@ namespace VaxScheduler.Repository.Data.Configurations
 
 
 			builder.HasOne(pv => pv.Vaccine)
-                .WithMany(p => p.patientVaccines)
-                .HasForeignKey(pv => pv.VaccineId);
-               
+				.WithMany(p => p.patientVaccines)
+				.HasForeignKey(pv => pv.VaccineId)
+					.OnDelete(DeleteBehavior.NoAction);
+
+
+			builder.HasOne(pv => pv.VaccinationCenter)
+			.WithMany(p => p.patientVaccines)
+			.HasForeignKey(pv => pv.VaccinationCenterId)
+				.OnDelete(DeleteBehavior.NoAction);
 
 
 
-
-        }
-    }
+		}
+	}
 }

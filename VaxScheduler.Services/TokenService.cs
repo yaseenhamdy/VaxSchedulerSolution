@@ -31,7 +31,6 @@ namespace VaxScheduler.Services
 				throw new ArgumentNullException(nameof(user), "User cannot be null.");
 			}
 
-			// Create claims based on the IUser interface properties
 			List<Claim> authClaims = new List<Claim>
 		{
 			new Claim(ClaimTypes.Name, user.Name),

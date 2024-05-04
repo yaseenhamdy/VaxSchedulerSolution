@@ -135,6 +135,7 @@ namespace VaxScheduler.API.Controllers
 					Role = center.Role,
 					VaccineNames = center.VaccineVaccinationCenter.Select(vvc => new VaccineVaccinationCenterDto
 					{
+						VaccineId = vvc.Vaccine.Id, 
 						VaccineName = vvc.Vaccine.Name
 					}).ToList()
 				}).ToList();
@@ -312,6 +313,122 @@ namespace VaxScheduler.API.Controllers
 			}
 
 		}
+
+
+
+
+
+
+
+		[HttpPost("ApproveDoses")]
+		public async Task<ActionResult<StatuseOfResonse>> ApproveDoses(SendDoseDTo model)
+		{
+			var patientVaccines = await _dbContext.patientVaccines
+								   .Where(PV => PV.PatientId == model.PatientId && PV.VaccineId == model.VaccineId)
+								   .FirstOrDefaultAsync();
+			if (patientVaccines is not null)
+			{
+				if (patientVaccines.FlagFirstDose == 0)
+				{
+					patientVaccines.FirstDose = 1;
+					patientVaccines.FlagFirstDose = 1;
+					_dbContext.patientVaccines.Update(patientVaccines);
+					int result = await _unitOfWork.Complete();
+					if (result > 0)
+					{
+						return Ok(new StatuseOfResonse
+						{
+							Message = true,
+							Value = "First Dose Approved Successfully"
+						});
+					}
+					else
+					{
+						return BadRequest(new StatuseOfResonse
+						{
+							Message = false,
+							Value = "No Rows Affected"
+						});
+					}
+				}
+				else if (patientVaccines.FlagSecondDose == 0)
+				{
+					patientVaccines.FlagSecondDose = 1;
+					patientVaccines.SecondDose = 1;
+					_dbContext.patientVaccines.Update(patientVaccines);
+					int result = await _unitOfWork.Complete();
+					if (result > 0)
+					{
+						return Ok(new StatuseOfResonse
+						{
+							Message = true,
+							Value = "Second Dose Approved Successfully"
+						});
+					}
+					else
+					{
+						return BadRequest(new StatuseOfResonse
+						{
+							Message = false,
+							Value = "No Rows Affected"
+						});
+					}
+				}
+				else
+				{
+					return BadRequest(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "You Take Two Doses from this Vaccine not Allow To TAke More"
+					});
+				}
+			}
+			else
+			{
+
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "There Are No Request With Patient ID or Vaccine ID or Vaccinatio Center ID Like This "
+				});
+
+			}
+
+		}
+
+
+
+
+
+		[HttpGet("GetAllWaitingDoses")]
+		public async Task<ActionResult<List<GetAllWaitingDosesDTO>>> GetAllWaitingDoses()
+		{
+
+			var result = await _dbContext.patientVaccines
+		.Where(pv => (pv.FlagFirstDose == 0 || pv.FlagSecondDose == 0))
+		.Select(pv => new GetAllWaitingDosesDTO
+		{
+			PatientId = pv.PatientId,
+			Name = pv.Patient.Name,
+			Email = pv.Patient.Email,
+			VaccineId = pv.VaccineId,
+			VaccineName = pv.Vaccine.Name,
+		})
+		.Distinct()
+		.ToListAsync();
+
+			if (result.Count() == 0)
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "No waiting doses found"
+				});
+
+			return Ok(result);
+
+
+		}
+
 
 
 	}

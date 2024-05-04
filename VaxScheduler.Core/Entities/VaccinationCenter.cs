@@ -30,6 +30,8 @@ namespace VaxScheduler.Core.Entities
         public int AdminId { get; set; }
 		public ICollection<VaccineVaccinationCenter> VaccineVaccinationCenter { get; set; }
 		public ICollection<PatientVaccinationCenter> PatientVaccinationCenters { get; set; }
+		public ICollection<PatientVaccine> patientVaccines { get; set; }
+
 
 
 	}

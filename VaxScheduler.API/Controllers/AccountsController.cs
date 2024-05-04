@@ -288,6 +288,7 @@ namespace VaxScheduler.API.Controllers
 					{
 						return Ok(new UserDTO()
 						{
+							Id = Admin.Id,
 							Name = Admin.Name,
 							Email = Admin.Email,
 							Role = Admin.Role,
@@ -319,6 +320,7 @@ namespace VaxScheduler.API.Controllers
 					{
 						return Ok(new UserDTO()
 						{
+							Id = Patient.Id,
 							Name = Patient.Name,
 							Email = Patient.Email,
 							Role = Patient.Role,
@@ -350,6 +352,7 @@ namespace VaxScheduler.API.Controllers
 					{
 						return Ok(new UserDTO()
 						{
+							Id = Center.Id,
 							Name = Center.Name,
 							Email = Center.Email,
 							Role = Center.Role,
