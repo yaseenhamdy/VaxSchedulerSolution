@@ -400,22 +400,22 @@ namespace VaxScheduler.API.Controllers
 
 
 
-		[HttpGet("GetAllWaitingDoses")]
-		public async Task<ActionResult<List<GetAllWaitingDosesDTO>>> GetAllWaitingDoses()
+		[HttpGet("GetAllWaitingDoses/{vaccinationCenterID}")]
+		public async Task<ActionResult<List<GetAllWaitingDosesDTO>>> GetAllWaitingDoses(int vaccinationCenterID)
 		{
 
 			var result = await _dbContext.patientVaccines
-		.Where(pv => (pv.FlagFirstDose == 0 || pv.FlagSecondDose == 0))
-		.Select(pv => new GetAllWaitingDosesDTO
-		{
-			PatientId = pv.PatientId,
-			Name = pv.Patient.Name,
-			Email = pv.Patient.Email,
-			VaccineId = pv.VaccineId,
-			VaccineName = pv.Vaccine.Name,
-		})
-		.Distinct()
-		.ToListAsync();
+		   .Where(pv => (pv.VaccinationCenterId == vaccinationCenterID) && (pv.FlagFirstDose == 0 || pv.FlagSecondDose == 0))
+		   .Select(pv => new GetAllWaitingDosesDTO
+		   {
+			   PatientId = pv.PatientId,
+			   Name = pv.Patient.Name,
+			   Email = pv.Patient.Email,
+			   VaccineId = pv.VaccineId,
+			   VaccineName = pv.Vaccine.Name,
+		   })
+		   .Distinct()
+		   .ToListAsync();
 
 			if (result.Count() == 0)
 				return BadRequest(new StatuseOfResonse

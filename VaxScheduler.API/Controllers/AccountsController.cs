@@ -66,8 +66,8 @@ namespace VaxScheduler.API.Controllers
 					Phone = model.Phone,
 					AdminId = AdminId.Id
 				};
-				var hasher = new PasswordHasher<Patient>();
-				patient.Password = hasher.HashPassword(patient, model.Password);
+				//var hasher = new PasswordHasher<Patient>();
+				//patient.Password = hasher.HashPassword(patient, model.Password);
 
 				//if (int.TryParse(model.VaccinationCenterId.ToString(), out int vaccinationCenterId))
 				//{
@@ -370,7 +370,7 @@ namespace VaxScheduler.API.Controllers
 						return BadRequest(new StatuseOfResonse
 						{
 							Message = false,
-							Value = "Wrong Password"
+							Value = "Wrong Password Or Email"
 						});
 					}
 				}
