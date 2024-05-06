@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using VaxScheduler.API.DTOs;
 using VaxScheduler.Core.Entities;
@@ -12,7 +13,9 @@ using VaxScheduler.Core.Identity;
 using VaxScheduler.Core.Repositories;
 using VaxScheduler.Core.Services;
 using VaxScheduler.Repository.Data;
-
+//using iText.Kernel.Pdf;
+//using iText.Layout;
+//using iText.Layout.Element;
 namespace VaxScheduler.API.Controllers
 {
 
@@ -21,16 +24,16 @@ namespace VaxScheduler.API.Controllers
 		private readonly VaxDbContext _dbContext;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGenericRepository<VaccinationCenter> _centerRepo;
-
+		private readonly IGenericRepository<Certificate> _certificateRepo;
 		private readonly ITokenService _tokenService;
 		public VaccinationCenterController(VaxDbContext dbContext, ITokenService tokenService, IUnitOfWork unitOfWork
-			, IGenericRepository<VaccinationCenter> centerRepo)
+			, IGenericRepository<VaccinationCenter> centerRepo, IGenericRepository<Certificate> certificateRepo)
 		{
 			_dbContext = dbContext;
 			_tokenService = tokenService;
 			_unitOfWork = unitOfWork;
 			_centerRepo = centerRepo;
-
+			_certificateRepo = certificateRepo;
 		}
 
 		[HttpGet("some-action")]
@@ -135,7 +138,7 @@ namespace VaxScheduler.API.Controllers
 					Role = center.Role,
 					VaccineNames = center.VaccineVaccinationCenter.Select(vvc => new VaccineVaccinationCenterDto
 					{
-						VaccineId = vvc.Vaccine.Id, 
+						VaccineId = vvc.Vaccine.Id,
 						VaccineName = vvc.Vaccine.Name
 					}).ToList()
 				}).ToList();
@@ -430,6 +433,174 @@ namespace VaxScheduler.API.Controllers
 		}
 
 
+
+
+		[HttpGet("CompletedVaccinations/{vaccinationCenterID}")]
+		public async Task<ActionResult<List<VaccinationRecordDTO>>> GetCompletedVaccinations(int vaccinationCenterID)
+		{
+			var records = await _dbContext.patientVaccines
+				.Where(pv => pv.FirstDose == 1 && pv.SecondDose == 1 && pv.VaccinationCenterId == vaccinationCenterID)
+				.Select(pv => new VaccinationRecordDTO
+				{
+					PatientId = pv.PatientId,
+					PatientName = pv.Patient.Name,
+					PatientEmail = pv.Patient.Email,
+					VaccineId = pv.VaccineId,
+					VaccineName = pv.Vaccine.Name,
+					//VaccinationCenterId = pv.VaccinationCenterId,
+					//VaccinationCenterName = pv.VaccinationCenter.Name
+				})
+				.ToListAsync();
+			if (!records.Any())
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "No records found for the specified vaccination center"
+				});
+
+			return Ok(records);
+		}
+
+
+
+
+		[HttpPost("UploadCertificate")]
+		public async Task<ActionResult<StatuseOfResonse>> CreateCertificate(CertificateCreationDTO certificateDto)
+		{
+			if (ModelState.IsValid)
+			{
+				bool patientExists = await _dbContext.Patients.AnyAsync(p => p.Id == certificateDto.PatientId);
+				if (!patientExists)
+				{
+					return Ok(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "No patient found with the specified ID"
+					});
+				}
+
+				bool vaccineExists = await _dbContext.Vaccines.AnyAsync(v => v.Id == certificateDto.VaccineId);
+				if (!vaccineExists)
+				{
+					return Ok(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "No vaccine found with the specified ID"
+					});
+				}
+
+				bool certificateExists = await _dbContext.Certificates.AnyAsync(c => c.PatientId == certificateDto.PatientId && c.VaccineId == certificateDto.VaccineId);
+				if (certificateExists)
+				{
+					return Ok(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "A certificate already exists for the specified patient and vaccine"
+					});
+				}
+
+				var certificate = new Certificate
+				{
+					PatientId = certificateDto.PatientId,
+					VaccineId = certificateDto.VaccineId,
+					Name = certificateDto.ImageUrl,
+					VaccinationCenterId = certificateDto.VaccinationCenterId,
+				};
+
+				await _certificateRepo.AddAsync(certificate);
+				int result = await _unitOfWork.Complete();
+				if (result > 0)
+				{
+					return Ok(new StatuseOfResonse
+					{
+						Message = true,
+						Value = "Certificate created successfully"
+					});
+				}
+				else
+				{
+					return BadRequest(new StatuseOfResonse
+					{
+						Message = false,
+						Value = "Failed to create the certificate"
+					});
+				}
+			}
+			else
+			{
+				return BadRequest(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "Invalid Inputs in Model"
+				});
+			}
+		}
+
+
+
+		[HttpGet("GetCertificateDetails/{vaccinationCenterId}")]
+		public async Task<ActionResult<List<CertificateDetailsDTO>>> GetCertificateDetails(int vaccinationCenterId)
+		{
+			var certificates = (await _certificateRepo.GetAllAsync())
+								.Where(c => c.VaccinationCenterId == vaccinationCenterId).ToList();
+			if (certificates == null || !certificates.Any())
+			{
+				return NotFound(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "No certificates found for the specified vaccination center"
+				});
+			}
+
+			var certDTOs = certificates.Select(cert => new CertificateDetailsDTO
+			{
+				PatientId = cert.PatientId,
+				PatientName = cert.Patient.Name,
+				PatientEmail = cert.Patient.Email,
+				VaccineId = cert.VaccineId,
+				VaccineName = cert.Vaccine.Name
+			}).ToList();
+
+
+			return Ok(certDTOs);
+		}
+
+
+
+		//[HttpGet("GeneratePdfReport")]
+		//public async Task<IActionResult> GeneratePdfReport(SendDoseDTo model)
+		//{
+		//	// Fetch the required data
+		//	var patient = await _dbContext.Patients.FirstOrDefaultAsync(p => p.Id == model.PatientId);
+		//	var vaccine = await _dbContext.Vaccines.FirstOrDefaultAsync(v => v.Id == model.VaccineId);
+		//	var center = await _dbContext.VaccinationCenters.FirstOrDefaultAsync(vc => vc.Id == model.VaccinationCenterId);
+
+		//	if (patient == null || vaccine == null || center == null)
+		//		return NotFound("One or more entities were not found.");
+
+		//	// Generate PDF
+		//	var memoryStream = new MemoryStream();
+
+		//	// Update the PdfWriter initialization with the new line:
+		//	var writer = new PdfWriter(memoryStream, new WriterProperties().SetPdfVersion(PdfVersion.PDF_2_0));
+
+		//	var pdf = new PdfDocument(writer);
+		//	var document = new iText.Layout.Document(pdf);
+
+		//	// Add content to PDF
+		//	document.Add(new Paragraph($"Patient Name: {patient.Name}"));
+		//	document.Add(new Paragraph($"Patient Email: {patient.Email}"));
+		//	document.Add(new Paragraph($"Patient Phone: {patient.Phone}"));
+		//	document.Add(new Paragraph($"Vaccine Name: {vaccine.Name}"));
+		//	document.Add(new Paragraph($"Vaccination Center: {center.Name}"));
+
+		//	// Closing the document
+		//	document.Close();
+
+		//	// Reset stream position and return file
+		//	memoryStream.Position = 0;
+		//	return File(memoryStream.ToArray(), "application/pdf", "Report.pdf");
+		//}
 
 	}
 }

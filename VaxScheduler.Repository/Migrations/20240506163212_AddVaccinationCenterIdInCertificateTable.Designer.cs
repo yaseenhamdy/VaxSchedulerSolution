@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VaxScheduler.Repository.Data;
 
@@ -11,9 +12,10 @@ using VaxScheduler.Repository.Data;
 namespace VaxScheduler.Repository.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
-    partial class VaxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506163212_AddVaccinationCenterIdInCertificateTable")]
+    partial class AddVaccinationCenterIdInCertificateTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VaxScheduler.Repository.Data;
 
@@ -11,9 +12,10 @@ using VaxScheduler.Repository.Data;
 namespace VaxScheduler.Repository.Migrations
 {
     [DbContext(typeof(VaxDbContext))]
-    partial class VaxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506145253_UpdateCertificateTable")]
+    partial class UpdateCertificateTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,17 +39,12 @@ namespace VaxScheduler.Repository.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
-                    b.Property<int>("VaccinationCenterId")
-                        .HasColumnType("int");
-
                     b.Property<int>("VaccineId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("VaccinationCenterId");
 
                     b.HasIndex("VaccineId");
 
@@ -304,12 +301,6 @@ namespace VaxScheduler.Repository.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("VaxScheduler.Core.Entities.VaccinationCenter", "VaccinationCenter")
-                        .WithMany()
-                        .HasForeignKey("VaccinationCenterId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("VaxScheduler.Core.Entities.Vaccine", "Vaccine")
                         .WithMany()
                         .HasForeignKey("VaccineId")
@@ -317,8 +308,6 @@ namespace VaxScheduler.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("Patient");
-
-                    b.Navigation("VaccinationCenter");
 
                     b.Navigation("Vaccine");
                 });

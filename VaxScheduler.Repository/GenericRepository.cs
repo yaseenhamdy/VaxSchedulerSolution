@@ -56,6 +56,14 @@ namespace VaxScheduler.Repository
 				return (IEnumerable<T>)await _dbContext.RegisteredPatients.ToListAsync();
 
 			}
+			else if (typeof(T) == typeof(Certificate))
+			{
+				return (IEnumerable<T>)await _dbContext.Certificates
+																	 .Include(c => c.Vaccine)
+																		.Include(cc => cc.Patient)
+																		.Include(c => c.VaccinationCenter)
+																		.ToListAsync();
+			}
 			else
 			{
 				return await _dbContext.Set<T>().ToListAsync();

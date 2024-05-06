@@ -212,15 +212,10 @@ namespace VaxScheduler.API.Controllers
 
 
 
-
-
-
 		[HttpPut("{id}")]
 		[Authorize(Roles = "Admin")]
-
 		public async Task<ActionResult<UserDTO>> UpdateVaccine(int id, AddVaccineDTO model)
 		{
-
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(new StatuseOfResonse
@@ -240,11 +235,11 @@ namespace VaxScheduler.API.Controllers
 				});
 			}
 
-			var existingVaccinWithName = await _dbContext.Vaccines
+			var existingVaccineWithName = await _dbContext.Vaccines
 				.Where(c => c.Name == model.Name && c.Id != id)
 				.FirstOrDefaultAsync();
 
-			if (existingVaccinWithName != null)
+			if (existingVaccineWithName != null)
 			{
 				return BadRequest(new StatuseOfResonse
 				{
@@ -253,25 +248,42 @@ namespace VaxScheduler.API.Controllers
 				});
 			}
 
+			foreach (var centerId in model.VaccinationCenterIds)
+			{
+				var centerExists = await _dbContext.VaccinationCenters.AnyAsync(c => c.Id == centerId);
+				if (!centerExists)
+				{
+					return BadRequest(new StatuseOfResonse
+					{
+						Message = false,
+						Value = $"Vaccination center ID {centerId} does not exist."
+					});
+				}
+			}
+
 			vaccine.Name = model.Name;
 			vaccine.Precautions = model.Precautions;
 			vaccine.DurationBetweenDoses = model.DurationBetweenDoses;
 
-			var existingVaccineVaccinationCenters = await _dbContext.vaccineVaccinationCenters
+			var currentCenters = await _dbContext.vaccineVaccinationCenters
 				.Where(vvc => vvc.VaccineId == vaccine.Id)
 				.ToListAsync();
 
-			_dbContext.vaccineVaccinationCenters.RemoveRange(existingVaccineVaccinationCenters);
+			var newCenterIds = new HashSet<int>(model.VaccinationCenterIds);
+			var currentCenterIds = new HashSet<int>(currentCenters.Select(vvc => vvc.VaccinationCenterId));
 
-			foreach (var vaccinationCenterId in model.VaccinationCenterIds)
+			foreach (var center in currentCenters.Where(c => !newCenterIds.Contains(c.VaccinationCenterId)))
 			{
-				var newVaccineVaccinationCenter = new VaccineVaccinationCenter
+				_dbContext.vaccineVaccinationCenters.Remove(center);
+			}
+
+			foreach (var centerId in newCenterIds.Where(n => !currentCenterIds.Contains(n)))
+			{
+				_dbContext.vaccineVaccinationCenters.Add(new VaccineVaccinationCenter
 				{
 					VaccineId = vaccine.Id,
-					VaccinationCenterId = vaccinationCenterId
-				};
-
-				_dbContext.vaccineVaccinationCenters.Add(newVaccineVaccinationCenter);
+					VaccinationCenterId = centerId
+				});
 			}
 
 			int result = await _unitOfWork.Complete();
@@ -297,7 +309,6 @@ namespace VaxScheduler.API.Controllers
 					Value = "An error occurred while updating the vaccine."
 				});
 			}
-			
 		}
 
 
