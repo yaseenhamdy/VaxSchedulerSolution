@@ -538,32 +538,100 @@ namespace VaxScheduler.API.Controllers
 
 
 
-		[HttpGet("GetCertificateDetails/{vaccinationCenterId}")]
-		public async Task<ActionResult<List<CertificateDetailsDTO>>> GetCertificateDetails(int vaccinationCenterId)
+
+
+		[HttpDelete("removeCertificate")]
+		public async Task<ActionResult<StatuseOfResonse>> RemoveCertificate(RemoveCertification model)
 		{
-			var certificates = (await _certificateRepo.GetAllAsync())
-								.Where(c => c.VaccinationCenterId == vaccinationCenterId).ToList();
-			if (certificates == null || !certificates.Any())
+			var certificate = await _dbContext.Certificates.FirstOrDefaultAsync(c =>
+				c.PatientId == model.PatientId &&
+				c.VaccineId == model.VaccineId &&
+				c.VaccinationCenterId == model.VaccinationCenterId);
+
+			if (certificate == null)
 			{
-				return NotFound(new StatuseOfResonse
+				return NotFound(new { Message = "Certificate not found with the provided IDs." });
+			}
+			await _certificateRepo.DeleteAsync(certificate);
+			var Result =await _unitOfWork.Complete();
+			if(Result > 0)
+			{
+				return Ok(new StatuseOfResonse
+				{
+					Message = true,
+					Value = "Certificate Deleted successfully"
+				});
+			}
+			else
+			{
+				return Ok(new StatuseOfResonse
 				{
 					Message = false,
-					Value = "No certificates found for the specified vaccination center"
+					Value = "No Rows Affected"
 				});
 			}
 
-			var certDTOs = certificates.Select(cert => new CertificateDetailsDTO
-			{
-				PatientId = cert.PatientId,
-				PatientName = cert.Patient.Name,
-				PatientEmail = cert.Patient.Email,
-				VaccineId = cert.VaccineId,
-				VaccineName = cert.Vaccine.Name
-			}).ToList();
-
-
-			return Ok(certDTOs);
 		}
+
+
+
+
+
+		[HttpGet("getCertificateName")]
+		public async Task<IActionResult> GetCertificateName(RemoveCertification model)
+		{
+			// Find the certificate with the specified IDs
+			var certificate = await _dbContext.Certificates
+				.Where(c => c.PatientId == model.PatientId && c.VaccineId == model.VaccineId && c.VaccinationCenterId == model.VaccinationCenterId)
+				.Select(c => new { c.Name }) 
+				.FirstOrDefaultAsync();
+
+			if (certificate == null)
+			{
+				return Ok(new StatuseOfResonse
+				{
+					Message = false,
+					Value = "Certificate not found"
+				});
+			}
+
+			
+			return Ok(certificate);
+		}
+
+
+
+
+
+		//[HttpGet("GetCertificateDetails/{vaccinationCenterId}")]
+		//public async Task<ActionResult<List<CertificateDetailsDTO>>> GetCertificateDetails(int vaccinationCenterId)
+		//{
+		//	var certificates = (await _certificateRepo.GetAllAsync())
+		//						.Where(c => c.VaccinationCenterId == vaccinationCenterId).ToList();
+		//	if (certificates == null || !certificates.Any())
+		//	{
+		//		return NotFound(new StatuseOfResonse
+		//		{
+		//			Message = false,
+		//			Value = "No certificates found for the specified vaccination center"
+		//		});
+		//	}
+
+		//	var certDTOs = certificates.Select(cert => new CertificateDetailsDTO
+		//	{
+		//		PatientId = cert.PatientId,
+		//		PatientName = cert.Patient.Name,
+		//		PatientEmail = cert.Patient.Email,
+		//		VaccineId = cert.VaccineId,
+		//		VaccineName = cert.Vaccine.Name
+		//	}).ToList();
+
+
+		//	return Ok(certDTOs);
+		//}
+
+
+
 
 
 
