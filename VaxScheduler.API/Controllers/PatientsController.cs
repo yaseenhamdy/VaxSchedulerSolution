@@ -54,6 +54,7 @@ namespace VaxScheduler.API.Controllers
 					FirstDose = null,
 					SecondDose = null,
 					FlagFirstDose = 0,
+					FlagShow =1,
 					FlagSecondDose = null,
 					VaccinationCenterId = model.VaccinationCenterId
 				};
@@ -86,6 +87,7 @@ namespace VaxScheduler.API.Controllers
 				{
 					patientVaccine.FlagSecondDose = 0;
 					patientVaccine.FirstDose = 1;
+					patientVaccine.FlagShow = 1;
 					patientVaccine.FlagFirstDose = 1;
 					_dbContext.patientVaccines.Update(patientVaccine);
 					int result = await _unitOfWork.Complete();
